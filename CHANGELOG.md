@@ -1,5 +1,76 @@
 # Changelog
 
+## 20200116
+- **Bump ELK to latest 6.8.6**
+- **Update ISO image to fix upstream bug of missing kernel modules**
+- **Include dashboards for CitrixHoneypot**
+  - Please run `/opt/tpot/update.sh` for the necessary modifications, omit the reboot and run `/opt/tpot/bin/tped.sh` to (re-)select the NextGen installation type.
+  - This update requires the latest Kibana objects as well. Download the latest from https://raw.githubusercontent.com/dtag-dev-sec/tpotce/master/etc/objects/kibana_export.json.zip, unzip and import the objects within Kibana WebUI > Management > Saved Objects > Export / Import". All objects will be overwritten upon import, make sure to run an export first.
+
+## 20200115
+- **Prepare integration of CitrixHoneypot**
+  - Prepare integration of [CitrixHoneypot](https://github.com/MalwareTech/CitrixHoneypot) by MalwareTech
+  - Integration into ELK is still open
+  - Please run `/opt/tpot/update.sh` for the necessary modifications, omit the reboot and run `/opt/tpot/bin/tped.sh` to (re-)select the NextGen installation type.
+
+## 20191224
+- **Use pigz, optimize logrotate.conf**
+  - Use `pigz` for faster archiving, especially with regard to high volumes of logs - Thanks to @workandresearchgithub!
+  - Optimize `logrotate.conf` to improve archiving speed and get rid of multiple compression, also introduce `pigz`.
+
+## 20191121
+- **Bump ADBHoney to latest master**
+  - Use latest version of ADBHoney, which now fully support Python 3.x - Thanks to @huuck!
+
+## 20191113, 20191104, 20191103, 20191028
+- **Switch to Debian 10 on OTC, Ansible Improvements**
+  - OTC now supporting Debian 10 - Thanks to @shaderecker!
+
+## 20191028
+- **Fix an issue with pip3, yq**
+  - `yq` needs rehashing.
+
+## 20191026
+- **Remove cockpit-pcp**
+  - `cockpit-pcp` floods swap for some reason - removing for now.
+
+## 20191022
+- **Bump Suricata to 5.0.0**
+
+## 20191021
+- **Bump Cowrie to 2.0.0**
+
+## 20191016
+- **Tweak installer, pip3, Heralding**
+  - Install `cockpit-pcp` right from the start for machine monitoring in cockpit.
+  - Move installer and update script to use pip3.
+  - Bump heralding to latest master (1.0.6) - Thanks @johnnykv!
+
+## 20191015
+- **Tweaking, Bump glutton, unlock ES script**
+  - Add `unlock.sh` to unlock ES indices in case of lockdown after disk quota has been reached.
+  - Prevent too much terminal logging from p0f and glutton since `daemon.log` was filled up.
+  - Bump glutton to latest master now supporting payload_hex. Thanks to @glaslos.
+
+## 20191002
+- **Merge**
+  - Support Debian Buster images for AWS #454
+  - Thank you @piffey
+
+## 20190924
+- **Bump EWSPoster**
+  - Supports Python 3.x
+  - Thank you @Trixam
+
+## 20190919
+- **Merge**
+  - Handle non-interactive shells #454
+  - Thank you @Oogy
+
+## 20190907
+- **Logo tweaking**
+  - Add QR logo
+
 ## 20190828
 - **Upgrades and rebuilds**
   - Bump Medpot, Nginx and Adbhoney to latest master

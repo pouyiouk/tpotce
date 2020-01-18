@@ -24,7 +24,6 @@ services:
 
 # Conpot default service
   conpot_default:
-    build: .
     container_name: conpot_default
     restart: always
     environment:
@@ -177,6 +176,8 @@ services:
     # - "443:443"
     # - "993:993"
     # - "995:995"
+    # - "3306:3306"
+    # - "3389:3389"
     # - "5432:5432"
      - "5900:5900"
     image: "dtagdevsec/heralding:1903"

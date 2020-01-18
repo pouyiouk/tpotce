@@ -14,7 +14,7 @@ myLSB_STABLE_SUPPORTED="stretch buster"
 myLSB_TESTING_SUPPORTED="sid"
 myREMOTESITES="https://hub.docker.com https://github.com https://pypi.python.org https://debian.org"
 myPREINSTALLPACKAGES="aria2 apache2-utils curl dialog figlet fuse grc libcrack2 libpq-dev lsb-release netselect-apt net-tools software-properties-common toilet"
-myINSTALLPACKAGES="aria2 apache2-utils apparmor apt-transport-https aufs-tools bash-completion build-essential ca-certificates cgroupfs-mount cockpit cockpit-docker console-setup console-setup-linux curl debconf-utils dialog dnsutils docker.io docker-compose dstat ethtool fail2ban figlet genisoimage git glances grc haveged html2text htop iptables iw jq kbd libcrack2 libltdl7 man mosh multitail netselect-apt net-tools npm ntp openssh-server openssl pass prips software-properties-common syslinux psmisc pv python-pip toilet unattended-upgrades unzip vim wget wireless-tools wpasupplicant"
+myINSTALLPACKAGES="aria2 apache2-utils apparmor apt-transport-https aufs-tools bash-completion build-essential ca-certificates cgroupfs-mount cockpit cockpit-docker console-setup console-setup-linux curl debconf-utils dialog dnsutils docker.io docker-compose ethtool fail2ban figlet genisoimage git glances grc haveged html2text htop iptables iw jq kbd libcrack2 libltdl7 man mosh multitail netselect-apt net-tools npm ntp openssh-server openssl pass pigz prips software-properties-common syslinux psmisc pv python3-pip toilet unattended-upgrades unzip vim wget wireless-tools wpasupplicant"
 myINFO="\
 ########################################
 ### T-Pot Installer for Debian (Sid) ###
@@ -170,6 +170,7 @@ myCRONJOBS="
 # Check for updated packages every sunday, upgrade and reboot
 27 16 * * 0     root    apt-fast autoclean -y && apt-fast autoremove -y && apt-fast update -y && apt-fast upgrade -y && sleep 10 && reboot
 "
+mySHELLCHECK='[[ $- == *i* ]] || return'
 myROOTPROMPT='PS1="\[\033[38;5;8m\][\[$(tput sgr0)\]\[\033[38;5;1m\]\u\[$(tput sgr0)\]\[\033[38;5;6m\]@\[$(tput sgr0)\]\[\033[38;5;4m\]\h\[$(tput sgr0)\]\[\033[38;5;6m\]:\[$(tput sgr0)\]\[\033[38;5;5m\]\w\[$(tput sgr0)\]\[\033[38;5;8m\]]\[$(tput sgr0)\]\[\033[38;5;1m\]\\$\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"'
 myUSERPROMPT='PS1="\[\033[38;5;8m\][\[$(tput sgr0)\]\[\033[38;5;2m\]\u\[$(tput sgr0)\]\[\033[38;5;6m\]@\[$(tput sgr0)\]\[\033[38;5;4m\]\h\[$(tput sgr0)\]\[\033[38;5;6m\]:\[$(tput sgr0)\]\[\033[38;5;5m\]\w\[$(tput sgr0)\]\[\033[38;5;8m\]]\[$(tput sgr0)\]\[\033[38;5;2m\]\\$\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"'
 myROOTCOLORS="export LS_OPTIONS='--color=auto'
@@ -309,9 +310,10 @@ EOF
   echo
   apt-fast -y install $myINSTALLPACKAGES
   # Remove exim4
-  apt-fast -y purge exim4-base mailutils
+  echo "### Removing and holding back problematic packages ..."
+  apt-fast -y purge exim4-base mailutils pcp cockpit-pcp
   apt-fast -y autoremove
-  apt-mark hold exim4-base mailutils
+  apt-mark hold exim4-base mailutils pcp cockpit-pcp
 }
 
 # Check for other services
@@ -641,6 +643,7 @@ fi
 if ! [ "$myCONF_TPOT_FLAVOR" == "SENSOR" ];
 then
   fuBANNER "NGINX Certificate"
+  myINTIP=$(hostname -I | awk '{ print $1 }')
   mkdir -p /data/nginx/cert
   openssl req \
           -nodes \
@@ -650,7 +653,8 @@ then
           -keyout "/data/nginx/cert/nginx.key" \
           -out "/data/nginx/cert/nginx.crt" \
           -days 3650 \
-          -subj '/C=AU/ST=Some-State/O=Internet Widgits Pty Ltd'
+          -subj '/C=AU/ST=Some-State/O=Internet Widgits Pty Ltd' \
+          -addext "subjectAltName = IP:$myINTIP"
 fi
 
 # Let's setup the ntp server
@@ -681,9 +685,8 @@ echo "UseRoaming no" | tee -a /etc/ssh/ssh_config
 # Installing elasticdump, yq
 fuBANNER "Installing pkgs"
 npm install https://github.com/taskrabbit/elasticsearch-dump -g
-pip install --upgrade pip
+pip3 install elasticsearch-curator yq
 hash -r
-pip install elasticsearch-curator yq
 
 # Cloning T-Pot from GitHub
 fuBANNER "Cloning T-Pot"
@@ -775,6 +778,7 @@ echo "$myCRONJOBS" | tee -a /etc/crontab
 fuBANNER "Files & folders"
 mkdir -p /data/adbhoney/downloads /data/adbhoney/log \
          /data/ciscoasa/log \
+	 /data/citrixhoneypot/logs \
       	 /data/conpot/log \
          /data/cowrie/log/tty/ /data/cowrie/downloads/ /data/cowrie/keys/ /data/cowrie/misc/ \
          /data/dionaea/log /data/dionaea/bistreams /data/dionaea/binaries /data/dionaea/rtp /data/dionaea/roots/ftp /data/dionaea/roots/tftp /data/dionaea/roots/www /data/dionaea/roots/upnp \
@@ -810,11 +814,11 @@ chmod 770 -R /data
 if [ "$myTPOT_DEPLOYMENT_TYPE" == "iso" ];
   then
     usermod -a -G tpot tsec
+    chown tsec:tsec -R /home/tsec/.ssh
   else
     usermod -a -G tpot $(who am i | awk '{ print $1 }')
 fi
 chown tpot:tpot -R /data
-chown tsec:tsec -R /home/tsec/.ssh
 chmod 644 -R /data/nginx/conf
 chmod 644 -R /data/nginx/cert
 
@@ -835,6 +839,7 @@ sed -i 's#After=.*#After=systemd-tmpfiles-setup.service console-screen.service k
 # Let's enable a color prompt and add /opt/tpot/bin to path
 fuBANNER "Setup prompt"
 tee -a /root/.bashrc <<EOF
+$mySHELLCHECK
 $myROOTPROMPT
 $myROOTCOLORS
 PATH="$PATH:/opt/tpot/bin"
@@ -842,6 +847,7 @@ EOF
 for i in $(ls -d /home/*/)
   do
 tee -a $i.bashrc <<EOF
+$mySHELLCHECK
 $myUSERPROMPT
 PATH="$PATH:/opt/tpot/bin"
 EOF
