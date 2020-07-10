@@ -8,20 +8,25 @@ myGREEN="[0;32m"
 myWHITE="[0;0m"
 myBLUE="[0;34m"
 
-
 # Check for existing tpot.yml
 function fuCONFIGCHECK () {
   echo "### Checking for T-Pot configuration file ..."
-  echo -n "###### $myBLUE$myCONFIGFILE$myWHITE "
-  if ! [ -f $myCONFIGFILE ];
+  if ! [ -L $myCONFIGFILE ];
     then
-      echo
-      echo "[ $myRED""NOT OK""$myWHITE ] - No T-Pot configuration found."
-      echo "Please create a link to your desired config i.e. 'ln -s /opt/tpot/etc/compose/standard.yml /opt/tpot/etc/tpot.yml'."
-      echo
-      exit 1
+      echo -n "###### $myBLUE$myCONFIGFILE$myWHITE "
+      myFILE=$(head -n 1 $myCONFIGFILE | tr -d "()" | tr [:upper:] [:lower:] | awk '{ print $3 }')
+      myFILE+=".yml"
+      echo "[ $myRED""NOT OK""$myWHITE ] - Broken symlink, trying to reset to '$myFILE'."
+      rm -rf $myCONFIGFILE
+      ln -s $myCOMPOSEPATH/$myFILE $myCONFIGFILE
+  fi
+  if [ -L $myCONFIGFILE ];
+    then
+      echo "###### $myBLUE$myCONFIGFILE$myWHITE [ $myGREEN""OK""$myWHITE ]"
     else
-      echo "[ $myGREEN""OK""$myWHITE ]"
+      echo "[ $myRED""NOT OK""$myWHITE ] - Broken symlink and / or restore failed."
+      echo "Please create a link to your desired config i.e. 'ln -s /opt/tpot/etc/compose/standard.yml /opt/tpot/etc/tpot.yml'."
+      exit
   fi
 echo
 }
@@ -77,7 +82,7 @@ echo
 # Let's check for version
 function fuCHECK_VERSION () {
 local myMINVERSION="19.03.0"
-local myMASTERVERSION="19.03.1"
+local myMASTERVERSION="20.06.0"
 echo
 echo "### Checking for Release ID"
 myRELEASE=$(lsb_release -i | grep Debian -c)
@@ -178,7 +183,11 @@ function fuUPDATER () {
 export DEBIAN_FRONTEND=noninteractive
 echo "### Installing apt-fast"
 /bin/bash -c "$(curl -sL https://raw.githubusercontent.com/ilikenwf/apt-fast/master/quick-install.sh)"
-local myPACKAGES="aria2 apache2-utils apparmor apt-transport-https aufs-tools bash-completion build-essential ca-certificates cgroupfs-mount cockpit cockpit-docker console-setup console-setup-linux curl debconf-utils dialog dnsutils docker.io docker-compose ethtool fail2ban figlet genisoimage git glances grc haveged html2text htop iptables iw jq kbd libcrack2 libltdl7 man mosh multitail netselect-apt net-tools npm ntp openssh-server openssl pass pigz prips software-properties-common syslinux psmisc pv python3-pip toilet unattended-upgrades unzip vim wget wireless-tools wpasupplicant"
+local myPACKAGES="aria2 apache2-utils apparmor apt-transport-https aufs-tools bash-completion build-essential ca-certificates cgroupfs-mount cockpit cockpit-docker console-setup console-setup-linux cracklib-runtime curl debconf-utils dialog dnsutils docker.io docker-compose ethtool fail2ban figlet genisoimage git glances grc haveged html2text htop iptables iw jq kbd libcrack2 libltdl7 libpam-google-authenticator man mosh multitail netselect-apt net-tools npm ntp openssh-server openssl pass pigz prips software-properties-common syslinux psmisc pv python3-elasticsearch-curator python3-pip toilet unattended-upgrades unzip vim wget wireless-tools wpasupplicant"
+# Remove purge in the future
+echo "### Removing repository based install of elasticsearch-curator"
+apt-get purge elasticsearch-curator -y
+hash -r
 echo "### Now upgrading packages ..."
 dpkg --configure -a
 apt-fast -y autoclean
@@ -191,12 +200,15 @@ echo "docker.io docker.io/restart       boolean true" | debconf-set-selections -
 echo "debconf debconf/frontend select noninteractive" | debconf-set-selections -v
 apt-fast -y dist-upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
 dpkg --configure -a
-npm install "https://github.com/taskrabbit/elasticsearch-dump" -g
-pip3 install --upgrade elasticsearch-curator yq
+npm cache clean --force
+npm install elasticdump -g
+pip3 install --upgrade yq
+# Remove --force switch in the future ...
+pip3 install elasticsearch-curator --force
 hash -r
 echo "### Removing and holding back problematic packages ..."
-apt-fast -y purge exim4-base mailutils pcp cockpit-pcp
-apt-mark hold exim4-base mailutils pcp cockpit-pcp
+apt-fast -y purge exim4-base mailutils pcp cockpit-pcp elasticsearch-curator
+apt-mark hold exim4-base mailutils pcp cockpit-pcp elasticsearch-curator
 echo
 
 echo "### Now replacing T-Pot related config files on host"
@@ -211,29 +223,32 @@ echo "Port 64295" >> /etc/ssh/sshd_config
 echo
 
 ### Ensure creation of T-Pot related folders, just in case
-mkdir -p /data/adbhoney/downloads /data/adbhoney/log \
+mkdir -vp /data/adbhoney/{downloads,log} \
          /data/ciscoasa/log \
          /data/conpot/log \
 	 /data/citrixhoneypot/logs \
-         /data/cowrie/log/tty/ /data/cowrie/downloads/ /data/cowrie/keys/ /data/cowrie/misc/ \
-         /data/dionaea/log /data/dionaea/bistreams /data/dionaea/binaries /data/dionaea/rtp /data/dionaea/roots/ftp /data/dionaea/roots/tftp /data/dionaea/roots/www /data/dionaea/roots/upnp \
+         /data/cowrie/{downloads,keys,misc,log,log/tty} \
+	 /data/dicompot/{images,log} \
+         /data/dionaea/{log,bistreams,binaries,rtp,roots,roots/ftp,roots/tftp,roots/www,roots/upnp} \
          /data/elasticpot/log \
-         /data/elk/data /data/elk/log \
+         /data/elk/{data,log} \
 	 /data/fatt/log \
-         /data/honeytrap/log/ /data/honeytrap/attacks/ /data/honeytrap/downloads/ \
+         /data/honeytrap/{log,attacks,downloads} \
          /data/glutton/log \
          /data/heralding/log \
          /data/honeypy/log \
+         /data/honeysap/log \
          /data/mailoney/log \
          /data/medpot/log \
-         /data/nginx/log \
+         /data/nginx/{log,heimdall} \
          /data/emobility/log \
          /data/ews/conf \
          /data/rdpy/log \
          /data/spiderfoot \
-         /data/suricata/log /home/tsec/.ssh/ \
-         /data/tanner/log /data/tanner/files \
-         /data/p0f/log
+         /data/suricata/log \
+         /data/tanner/{log,files} \
+         /data/p0f/log \
+	 /home/tsec/.ssh/
 
 ### Let's take care of some files and permissions
 chmod 770 -R /data
@@ -245,7 +260,7 @@ echo "### Now pulling latest docker images"
 echo "######$myBLUE This might take a while, please be patient!$myWHITE"
 fuPULLIMAGES 2>&1>/dev/null
 
-#fuREMOVEOLDIMAGES "1804"
+#fuREMOVEOLDIMAGES "1903"
 echo "### If you made changes to tpot.yml please ensure to add them again."
 echo "### We stored the previous version as backup in /root/."
 echo "### Some updates may need an import of the latest Kibana objects as well."
@@ -253,14 +268,16 @@ echo "### Download the latest objects here if they recently changed:"
 echo "### https://raw.githubusercontent.com/dtag-dev-sec/tpotce/master/etc/objects/kibana_export.json.zip"
 echo "### Export and import the objects easily through the Kibana WebUI:"
 echo "### Go to Kibana > Management > Saved Objects > Export / Import"
-echo "### All objects will be overwritten upon import, make sure to run an export first."
+echo "### Or use the command:"
+echo "### import_kibana-objects.sh /opt/tpot/etc/objects/kibana-objects.tgz"
+echo "### All objects will be overwritten upon import, make sure to run an export first if you made changes."
 }
 
 function fuRESTORE_EWSCFG () {
-if [ -f '/data/ews/conf/ews.cfg' ] && ! grep 'ews.cfg' /opt/tpot/etc/tpot.yml > /dev/null; then
+if [ -f '/data/ews/conf/ews.cfg' ] && ! grep 'ews.cfg' $myCONFIGFILE > /dev/null; then
     echo
     echo "### Restoring volume mount for ews.cfg in tpot.yml"
-    sed -i '/\/opt\/ewsposter\/ews.ip/a\\ \ \ \ \ - /data/ews/conf/ews.cfg:/opt/ewsposter/ews.cfg' /opt/tpot/etc/tpot.yml
+    sed -i --follow-symlinks '/\/opt\/ewsposter\/ews.ip/a\\ \ \ \ \ - /data/ews/conf/ews.cfg:/opt/ewsposter/ews.cfg' $myCONFIGFILE
 fi
 }
 
@@ -306,5 +323,5 @@ fuRESTORE_EWSCFG
 fuRESTORE_HPFEEDS
 
 echo
-echo "### Please reboot."
+echo "### Done."
 echo

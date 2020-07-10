@@ -1,10 +1,11 @@
-FROM alpine
+FROM alpine:latest
 #
 # Include dist
 ADD dist/ /root/dist/
 #
 # Install packages
-RUN apk -U --no-cache add \
+RUN sed -i 's/dl-cdn/dl-2/g' /etc/apk/repositories && \
+    apk -U --no-cache add \
             build-base \
             git \
             libffi-dev \
@@ -17,8 +18,8 @@ RUN apk -U --no-cache add \
 	    py3-lxml \
 	    py3-mysqlclient \
             py3-requests \
+	    py3-pip \
             py3-setuptools && \
-    pip3 install --no-cache-dir -U pip && \
     pip3 install --no-cache-dir configparser hpfeeds3 pyOpenSSL xmljson && \
 #
 # Setup ewsposter
@@ -32,7 +33,7 @@ RUN apk -U --no-cache add \
 #
 # Supply configs
     mv /root/dist/ews.cfg /opt/ewsposter/ && \
-    mv /root/dist/*.pem /opt/ewsposter/ && \
+#    mv /root/dist/*.pem /opt/ewsposter/ && \
 #
 # Clean up
     apk del build-base \
@@ -46,4 +47,4 @@ RUN apk -U --no-cache add \
 # Run ewsposter
 STOPSIGNAL SIGINT
 USER ews:ews
-CMD sleep 10 && exec /usr/bin/python3 -u /opt/ewsposter/ews.py -l 60
+CMD sleep 10 && exec /usr/bin/python3 -u /opt/ewsposter/ews.py -l $(shuf -i 10-60 -n 1)

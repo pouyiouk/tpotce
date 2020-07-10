@@ -17,22 +17,23 @@ fi
 myDATE=$(date +%Y%m%d%H%M)
 myINDEXCOUNT=$(curl -s -XGET ''$myKIBANA'api/saved_objects/_find?type=index-pattern' | jq '.saved_objects[].attributes' | tr '\\' '\n' | grep "scripted" | wc -w)
 myINDEXID=$(curl -s -XGET ''$myKIBANA'api/saved_objects/_find?type=index-pattern' | jq '.saved_objects[].id' | tr -d '"')
-myDASHBOARDS=$(curl -s -XGET ''$myKIBANA'api/saved_objects/_find?type=dashboard&per_page=300' | jq '.saved_objects[].id' | tr -d '"')
-myVISUALIZATIONS=$(curl -s -XGET ''$myKIBANA'api/saved_objects/_find?type=visualization&per_page=300' | jq '.saved_objects[].id' | tr -d '"')
-mySEARCHES=$(curl -s -XGET ''$myKIBANA'api/saved_objects/_find?type=search&per_page=300' | jq '.saved_objects[].id' | tr -d '"')
+myDASHBOARDS=$(curl -s -XGET ''$myKIBANA'api/saved_objects/_find?type=dashboard&per_page=500' | jq '.saved_objects[].id' | tr -d '"')
+myVISUALIZATIONS=$(curl -s -XGET ''$myKIBANA'api/saved_objects/_find?type=visualization&per_page=500' | jq '.saved_objects[].id' | tr -d '"')
+mySEARCHES=$(curl -s -XGET ''$myKIBANA'api/saved_objects/_find?type=search&per_page=500' | jq '.saved_objects[].id' | tr -d '"')
+myCONFIGS=$(curl -s -XGET ''$myKIBANA'api/saved_objects/_find?type=config&per_page=500' | jq '.saved_objects[].id' | tr -d '"')
 myCOL1="[0;34m"
 myCOL0="[0;0m"
 
 # Let's ensure normal operation on exit or if interrupted ...
 function fuCLEANUP {
-  rm -rf patterns/ dashboards/ visualizations/ searches/
+  rm -rf patterns/ dashboards/ visualizations/ searches/ configs/
 }
 trap fuCLEANUP EXIT
 
 # Export index patterns
 mkdir -p patterns
 echo $myCOL1"### Now exporting"$myCOL0 $myINDEXCOUNT $myCOL1"index pattern fields." $myCOL0
-curl -s -XGET ''$myKIBANA'api/saved_objects/index-pattern/'$myINDEXID'' | jq '. | {attributes}' > patterns/$myINDEXID.json &
+curl -s -XGET ''$myKIBANA'api/saved_objects/index-pattern/'$myINDEXID'' | jq '. | {attributes, references}' > patterns/$myINDEXID.json &
 echo
 
 # Export dashboards
@@ -41,7 +42,7 @@ echo $myCOL1"### Now exporting"$myCOL0 $(echo $myDASHBOARDS | wc -w) $myCOL1"das
 for i in $myDASHBOARDS;
   do
     echo $myCOL1"###### "$i $myCOL0
-    curl -s -XGET ''$myKIBANA'api/saved_objects/dashboard/'$i'' | jq '. | {attributes}' > dashboards/$i.json &
+    curl -s -XGET ''$myKIBANA'api/saved_objects/dashboard/'$i'' | jq '. | {attributes, references}' > dashboards/$i.json &
   done;
 echo
 
@@ -51,7 +52,7 @@ echo $myCOL1"### Now exporting"$myCOL0 $(echo $myVISUALIZATIONS | wc -w) $myCOL1
 for i in $myVISUALIZATIONS;
   do
     echo $myCOL1"###### "$i $myCOL0
-    curl -s -XGET ''$myKIBANA'api/saved_objects/visualization/'$i'' | jq '. | {attributes}' > visualizations/$i.json &
+    curl -s -XGET ''$myKIBANA'api/saved_objects/visualization/'$i'' | jq '. | {attributes, references}' > visualizations/$i.json &
   done;
 echo
 
@@ -61,7 +62,17 @@ echo $myCOL1"### Now exporting"$myCOL0 $(echo $mySEARCHES | wc -w) $myCOL1"searc
 for i in $mySEARCHES;
   do
     echo $myCOL1"###### "$i $myCOL0
-    curl -s -XGET ''$myKIBANA'api/saved_objects/search/'$i'' | jq '. | {attributes}' > searches/$i.json &
+    curl -s -XGET ''$myKIBANA'api/saved_objects/search/'$i'' | jq '. | {attributes, references}' > searches/$i.json &
+  done;
+echo
+
+# Export configs
+mkdir -p configs
+echo $myCOL1"### Now exporting"$myCOL0 $(echo $myCONFIGS | wc -w) $myCOL1"configs." $myCOL0
+for i in $myCONFIGS;
+  do
+    echo $myCOL1"###### "$i $myCOL0
+    curl -s -XGET ''$myKIBANA'api/saved_objects/config/'$i'' | jq '. | {attributes, references}' > configs/$i.json &
   done;
 echo
 
@@ -70,7 +81,7 @@ wait
 
 # Building tar archive
 echo $myCOL1"### Now building archive"$myCOL0 "kibana-objects_"$myDATE".tgz"
-tar cvfz kibana-objects_$myDATE.tgz patterns dashboards visualizations searches > /dev/null
+tar cvfz kibana-objects_$myDATE.tgz patterns dashboards visualizations searches configs > /dev/null
 
 # Stats
 echo
@@ -79,4 +90,5 @@ echo $myCOL1"###### Exported"$myCOL0 $myINDEXCOUNT $myCOL1"index patterns." $myC
 echo $myCOL1"###### Exported"$myCOL0 $(echo $myDASHBOARDS | wc -w) $myCOL1"dashboards." $myCOL0
 echo $myCOL1"###### Exported"$myCOL0 $(echo $myVISUALIZATIONS | wc -w) $myCOL1"visualizations." $myCOL0
 echo $myCOL1"###### Exported"$myCOL0 $(echo $mySEARCHES | wc -w) $myCOL1"searches." $myCOL0
+echo $myCOL1"###### Exported"$myCOL0 $(echo $myCONFIGS | wc -w) $myCOL1"configs." $myCOL0
 echo

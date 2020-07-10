@@ -1,4 +1,4 @@
-FROM alpine 
+FROM alpine:3.11
 #
 # Install packages
 RUN apk -U --no-cache add \
@@ -21,13 +21,12 @@ RUN apk -U --no-cache add \
     make install && \
 #
 # Install libemu python wrapper
-    pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir \ 
                         hpfeeds \
                         pylibemu && \ 
 #
 # Install mailoney from git
-    git clone --depth=1 https://github.com/awhitehatter/mailoney /opt/mailoney && \
+    git clone --depth=1 https://github.com/t3chn0m4g3/mailoney /opt/mailoney && \
 #
 # Setup user, groups and configs
     addgroup -g 2000 mailoney && \

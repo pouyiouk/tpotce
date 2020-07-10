@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM alpine:latest
 #
 # Include dist
 ADD dist/ /root/dist/
@@ -12,14 +12,17 @@ RUN sed -i 's/dl-cdn/dl-2/g' /etc/apk/repositories && \
                libffi-dev \
                libressl-dev \
                linux-headers \
+	       py3-pip \
                py3-yarl \
                python3 \
                python3-dev && \ 
 #
 # Setup Tanner
     git clone --depth=1 https://github.com/mushorg/tanner /opt/tanner && \
-    cp /root/dist/config.py /opt/tanner/tanner/ && \
     cd /opt/tanner/ && \
+#    git fetch origin pull/364/head:test && \	
+#    git checkout test && \
+    cp /root/dist/config.yaml /opt/tanner/tanner/data && \
     pip3 install --no-cache-dir setuptools && \
     pip3 install --no-cache-dir -r requirements.txt && \
     python3 setup.py install && \
@@ -33,8 +36,7 @@ RUN sed -i 's/dl-cdn/dl-2/g' /etc/apk/repositories && \
            docker \
            docs \
            requirements.txt \
-           setup.py \
-           tanner/data && \
+           setup.py && \
     cd / && \
 #   
 # Setup configs, user, groups
@@ -56,7 +58,7 @@ RUN sed -i 's/dl-cdn/dl-2/g' /etc/apk/repositories && \
     rm -rf /tmp/* /var/tmp/* && \
     rm -rf /var/cache/apk/*
 #
-# Start conpot
+# Start tanner
 STOPSIGNAL SIGKILL
 USER tanner:tanner
 WORKDIR /opt/tanner

@@ -1,10 +1,12 @@
-FROM alpine 
+FROM alpine:latest
 #
 # Install packages
-RUN apk -U add \
+RUN sed -i 's/dl-cdn/dl-2/g' /etc/apk/repositories && \
+    apk -U add \
             git \
             libcap \
 	    openssl \
+	    py3-pip \
             python3 \
             python3-dev && \
 #

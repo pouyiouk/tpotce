@@ -1,8 +1,5 @@
 FROM alpine:3.10
 #
-# Include dist
-ADD dist/ /root/dist/
-#
 # Install packages
 RUN sed -i 's/dl-cdn/dl-2/g' /etc/apk/repositories && \
     apk -U --no-cache add \
@@ -12,6 +9,7 @@ RUN sed -i 's/dl-cdn/dl-2/g' /etc/apk/repositories && \
                make \
                php7 \
                php7-dev \
+	       py3-pip \
                python3 \
                python3-dev \
                re2c && \
@@ -32,7 +30,6 @@ RUN sed -i 's/dl-cdn/dl-2/g' /etc/apk/repositories && \
 # Install PHP Sandbox
     git clone --depth=1 https://github.com/mushorg/phpox /opt/phpox && \
     cd /opt/phpox && \
-    cp /root/dist/sandbox.py . && \
     pip3 install -r requirements.txt && \
     make && \
 #

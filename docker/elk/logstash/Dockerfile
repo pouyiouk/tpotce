@@ -1,5 +1,7 @@
-FROM alpine
+FROM alpine:3.12
 #
+# VARS
+ENV LS_VER=7.8.0
 # Include dist
 ADD dist/ /root/dist/
 #
@@ -13,18 +15,18 @@ RUN sed -i 's/dl-cdn/dl-2/g' /etc/apk/repositories && \
              libc6-compat \
              libzmq \
              nss \
-             openjdk8-jre && \
+             openjdk11-jre && \
 #
 # Get and install packages
     mkdir -p /etc/listbot && \
     cd /etc/listbot && \
-    aria2c -s16 -x 16 https://raw.githubusercontent.com/dtag-dev-sec/listbot/master/cve.yaml.bz2 && \
-    aria2c -s16 -x 16 https://raw.githubusercontent.com/dtag-dev-sec/listbot/master/iprep.yaml.bz2 && \
+    aria2c -s16 -x 16 https://listbot.sicherheitstacho.eu/cve.yaml.bz2 && \
+    aria2c -s16 -x 16 https://listbot.sicherheitstacho.eu/iprep.yaml.bz2 && \
     bunzip2 *.bz2 && \
     cd /root/dist/ && \
     mkdir -p /usr/share/logstash/ && \
-    aria2c -s 16 -x 16 https://artifacts.elastic.co/downloads/logstash/logstash-6.8.6.tar.gz && \
-    tar xvfz logstash-6.8.6.tar.gz --strip-components=1 -C /usr/share/logstash/ && \
+    aria2c -s 16 -x 16 https://artifacts.elastic.co/downloads/logstash/logstash-$LS_VER.tar.gz && \
+    tar xvfz logstash-$LS_VER.tar.gz --strip-components=1 -C /usr/share/logstash/ && \
     /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate && \
     /usr/share/logstash/bin/logstash-plugin install logstash-output-syslog && \
 #
@@ -34,7 +36,8 @@ RUN sed -i 's/dl-cdn/dl-2/g' /etc/apk/repositories && \
     chmod u+x /usr/bin/update.sh && \
     mkdir -p /etc/logstash/conf.d && \
     cp logstash.conf /etc/logstash/conf.d/ && \
-    cp elasticsearch-template-es6x.json /usr/share/logstash/vendor/bundle/jruby/2.5.0/gems/logstash-output-elasticsearch-9.4.0-java/lib/logstash/outputs/elasticsearch/ && \
+    cp elasticsearch-template-es7x.json /usr/share/logstash/vendor/bundle/jruby/2.5.0/gems/logstash-output-elasticsearch-10.5.1-java/lib/logstash/outputs/elasticsearch/ && \
+    cp common_configs.rb /usr/share/logstash/vendor/bundle/jruby/2.5.0/gems/logstash-output-elasticsearch-10.5.1-java/lib/logstash/outputs/elasticsearch/ && \
 #
 # Setup user, groups and configs
     addgroup -g 2000 logstash && \
@@ -53,4 +56,5 @@ HEALTHCHECK --retries=10 CMD curl -s -XGET 'http://127.0.0.1:9600'
 #
 # Start logstash
 #USER logstash:logstash
+#CMD update.sh && exec /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/logstash.conf --config.reload.automatic --java-execution --log.level debug
 CMD update.sh && exec /usr/share/logstash/bin/logstash -f /etc/logstash/conf.d/logstash.conf --config.reload.automatic --java-execution

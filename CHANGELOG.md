@@ -1,5 +1,51 @@
 # Changelog
 
+## 20200630
+- **Release T-Pot 20.06**
+  - After 4 months of public testing with the NextGen edition T-Pot 20.06 can finally be released.
+- **Debian Buster**
+  - With the release of Debian Buster T-Pot now has access to all packages required right out of the box.
+- **Add new honeypots**
+  - [Dicompot](https://github.com/nsmfoo/dicompot) by @nsmfoo is a low interaction honeypot for the Dicom protocol which is the international standard to process medical imaging information. Together with Medpot which supports the HL7 protocol T-Pot is now offering a Medical Installation type.
+  - [Honeysap](https://github.com/SecureAuthCorp/HoneySAP) by SecureAuthCorp is a low interaction honeypot for the SAP services, in case of T-Pot configured for the SAP router.
+  - [Elasticpot](https://gitlab.com/bontchev/elasticpot) by Vesselin Bontchev replaces ElasticpotPY as a low interaction honeypot for Elasticsearch with more features, plugins and scripted responses.
+- **Rebuild Images**
+  - All docker images were rebuilt based on the latest (and stable running) versions of the tools and honeypots. Mostly the images now run on Alpine 3.12 / Debian Buster. However some honeypots / tools still reuire Alpine 3.11 / 3.10 to run properly.
+- **Install Types**
+  - All docker-compose files (`/opt/tpot/etc/compose`) were remixed and most of the NextGen honeypots are now available in Standard.
+  - There is now a **Medical** Installation Type with Dicompot and Medpot which will be of most interest for medical institutions to get started with T-Pot.
+- **Update Tools**
+  - Connecting to T-Pot via `https://<ip>:64297` brings you to the T-Pot Landing Page now which is based on Heimdall and the latest NGINX enforcing TLS 1.3.
+  - The ELK stack was updated to 7.8.0 and stripped down to the necessary core functions (where possible) for T-Pot while keeping ELK RAM requirements to a minimum (8GB of RAM is recommended now). The number of index pattern fields was reduced to **697** which increases performance significantly. There are **22** Kibana Dashboards, **397** Kibana Visualizations and **24** Kibana Searches readily available to cover all your needs to get started and familiar with T-Pot.
+  - Cyberchef was updated to 9.21.0.
+  - Elasticsearch Head was updated to the latest version available on GitHub.
+  - Spiderfoot was updated to latest 3.1 dev.
+- **Landing Page**
+  - After logging into T-Pot via web you are now greeted with a beautifully designed landing page.
+- **Countless Tweaks and improvements**
+  - Under the hood lots of tiny tweaks, improvements and a few bugfixes will increase your overall experience with T-Pot.
+
+## 20200316
+- **Move from Sid to Stable**
+  - Debian Stable has now all the packages and versions we need for T-Pot. As a consequence we can now move to the `stable` branch.
+
+## 20200310
+- **Add 2FA to Cockpit**
+  - Just run `2fa.sh` to enable two factor authentication in Cockpit.
+- **Find fastest mirror with netselect-apt**
+  - Netselect-apt will find the fastest mirror close to you (outgoing ICMP required).
+
+## 20200309
+- **Bump Nextgen to 20.06**
+  - All NextGen images have been rebuilt to their latest master.
+  - ElasticStack bumped to 7.6.1 (Elasticsearch will need at least 2048MB of RAM now, T-Pot at least 8GB of RAM) and tweak to accomodate changes of 7.x.
+  - Fixed errors in Tanner / Snare which will now handle downloads of malware via SSL and store them correctly (thanks to @afeena).
+  - Fixed errors in Heralding which will now improve on RDP connections (thanks to @johnnykv, @realsdx).
+  - Fixed error in honeytrap which will now build in Debian/Buster (thanks to @tillmannw).
+  - Mailoney is now logging in JSON format (thanks to @monsherko).
+  - Base T-Pot landing page on Heimdall.
+  - Tweaking of tools and some minor bug fixing
+
 ## 20200116
 - **Bump ELK to latest 6.8.6**
 - **Update ISO image to fix upstream bug of missing kernel modules**
@@ -186,3 +232,5 @@
   - If T-Pot, opposed to the requirements, does not have full internet access netselect-apt fails to determine the fastest mirror as it needs ICMP and UDP outgoing. Should netselect-apt fail the default mirrors will be used.
 - **Improve install speed with apt-fast**
   - Migrating from a stable base install to Debian (Sid) requires downloading lots of packages. Depending on your geo location the download speed was already improved by introducing netselect-apt to determine the fastest mirror. With apt-fast the downloads will be even faster by downloading packages not only in parallel but also with multiple connections per package.
+
+`git log --date=format:"## %Y%m%d" --pretty=format:"%ad %n- **%s**%n  - %b"`

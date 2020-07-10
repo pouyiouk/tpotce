@@ -93,7 +93,7 @@ fuCISCOASA () {
 # Let's create a function to clean up and prepare citrixhoneypot data
 fuCITRIXHONEYPOT () {
   if [ "$myPERSISTENCE" != "on" ]; then rm -rf /data/citrixhoneypot/*; fi
-  mkdir -p /data/citrixhoneypot/log/
+  mkdir -p /data/citrixhoneypot/logs/
   chmod 770 /data/citrixhoneypot/ -R
   chown tpot:tpot /data/citrixhoneypot/ -R
 }
@@ -112,6 +112,15 @@ fuCOWRIE () {
   mkdir -p /data/cowrie/log/tty/ /data/cowrie/downloads/ /data/cowrie/keys/ /data/cowrie/misc/
   chmod 770 /data/cowrie -R
   chown tpot:tpot /data/cowrie -R
+}
+
+# Let's create a function to clean up and prepare dicompot data
+fuDICOMPOT () {
+  if [ "$myPERSISTENCE" != "on" ]; then rm -rf /data/dicompot/log; fi
+  mkdir -p /data/dicompot/log
+  mkdir -p /data/dicompot/images
+  chmod 770 /data/dicompot -R
+  chown tpot:tpot /data/dicompot -R
 }
 
 # Let's create a function to clean up and prepare dionaea data
@@ -170,6 +179,14 @@ fuHONEYPY () {
   mkdir -p /data/honeypy/log
   chmod 770 /data/honeypy -R
   chown tpot:tpot /data/honeypy -R
+}
+
+# Let's create a function to clean up and prepare honeysap data
+fuHONEYSAP () {
+  if [ "$myPERSISTENCE" != "on" ]; then rm -rf /data/honeysap/*; fi
+  mkdir -p /data/honeysap/log
+  chmod 770 /data/honeysap -R
+  chown tpot:tpot /data/honeysap -R
 }
 
 # Let's create a function to clean up and prepare honeytrap data
@@ -271,12 +288,14 @@ if [ "$myPERSISTENCE" = "on" ];
     fuCITRIXHONEYPOT
     fuCONPOT
     fuCOWRIE
+    fuDICOMPOT
     fuDIONAEA
     fuELASTICPOT
     fuELK
     fuFATT
     fuGLUTTON
     fuHERALDING
+    fuHONEYSAP
     fuHONEYPY
     fuHONEYTRAP
     fuMAILONEY
