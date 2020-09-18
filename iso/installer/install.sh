@@ -16,7 +16,7 @@ fi
 myBACKTITLE="T-Pot-Installer"
 myCONF_FILE="/root/installer/iso.conf"
 myPROGRESSBOXCONF=" --backtitle "$myBACKTITLE" --progressbox 24 80"
-mySITES="https://hub.docker.com https://github.com https://pypi.python.org https://debian.org"
+mySITES="https://ghcr.io https://github.com https://pypi.python.org https://debian.org"
 myTPOTCOMPOSE="/opt/tpot/etc/tpot.yml"
 myLSB_STABLE_SUPPORTED="stretch buster"
 myLSB_TESTING_SUPPORTED="stable"
@@ -704,7 +704,7 @@ hash -r
 if ! [ "$myTPOT_DEPLOYMENT_TYPE" == "iso" ];
   then
     fuBANNER "Cloning T-Pot"
-    git clone https://github.com/dtag-dev-sec/tpotce /opt/tpot
+    git clone https://github.com/telekom-security/tpotce /opt/tpot
 fi
 
 # Let's create the T-Pot user
@@ -810,6 +810,7 @@ mkdir -vp /data/adbhoney/{downloads,log} \
          /data/heralding/log \
          /data/honeypy/log \
          /data/honeysap/log \
+	 /data/ipphoney/log \
          /data/mailoney/log \
          /data/medpot/log \
          /data/nginx/{log,heimdall} \
