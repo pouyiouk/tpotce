@@ -36,6 +36,8 @@ Ansible works over the SSH Port, so you don't have to add any special rules to y
 
 <a name="ansible"></a>
 ## Ansible Installation
+:warning: Ansible 2.10 or newer is required!
+
 Example for Ubuntu 18.04:  
 
 At first we update the system:  
@@ -47,6 +49,12 @@ Then we need to add the repository and install Ansible:
 `sudo apt install ansible`
 
 For other OSes and Distros have a look at the official [Ansible Documentation](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
+
+If your OS does not offer a recent version of Ansible (>= 2.10) you should consider [installing Ansible with pip](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-with-pip).  
+In short (if you already have Python3/pip3 installed):
+```
+pip3 install ansible
+```
 
 <a name="agent-forwarding"></a>
 ## Agent Forwarding
@@ -159,14 +167,6 @@ Here you can choose:
   - between the various T-Pot editions
   - a username for the web interface
   - a password for the web interface (**you should definitely change that**)
-
-```
-# tpot configuration file
-# myCONF_TPOT_FLAVOR=[STANDARD, SENSOR, INDUSTRIAL, COLLECTOR, NEXTGEN]
-myCONF_TPOT_FLAVOR='STANDARD'
-myCONF_WEB_USER='webuser'
-myCONF_WEB_PW='w3b$ecret'
-```
 
 <a name="ews-cfg"></a>
 ## Optional: Custom `ews.cfg`
