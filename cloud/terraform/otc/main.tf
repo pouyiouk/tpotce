@@ -1,3 +1,7 @@
+data "opentelekomcloud_images_image_v2" "debian" {
+  name = "Standard_Debian_10_latest"
+}
+
 resource "opentelekomcloud_networking_secgroup_v2" "secgroup_1" {
   name        = var.secgroup_name
   description = var.secgroup_desc
@@ -37,7 +41,7 @@ resource "random_id" "tpot" {
 
 resource "opentelekomcloud_compute_instance_v2" "ecs_1" {
   availability_zone = var.availability_zone
-  name              = random_id.tpot.b64
+  name              = random_id.tpot.b64_std
   flavor_name       = var.flavor
   key_pair          = var.key_pair
   security_groups   = [opentelekomcloud_networking_secgroup_v2.secgroup_1.name]
@@ -48,7 +52,7 @@ resource "opentelekomcloud_compute_instance_v2" "ecs_1" {
   }
 
   block_device {
-    uuid                  = var.image_id
+    uuid                  = data.opentelekomcloud_images_image_v2.debian.id
     source_type           = "image"
     volume_size           = var.volume_size
     destination_type      = "volume"
