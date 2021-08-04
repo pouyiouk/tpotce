@@ -1,4 +1,4 @@
-FROM alpine:3.13
+FROM alpine:3.14
 #
 # Include dist
 ADD dist/ /root/dist/
@@ -20,12 +20,12 @@ RUN apk -U --no-cache add \
             py3-requests \
 	    py3-pip \
             py3-setuptools && \
-    pip3 install --no-cache-dir configparser hpfeeds3 pyOpenSSL xmljson && \
+    pip3 install --no-cache-dir configparser hpfeeds3 influxdb influxdb-client pyOpenSSL xmljson && \
 #
 # Setup ewsposter
     git clone https://github.com/telekom-security/ewsposter /opt/ewsposter && \
     cd /opt/ewsposter && \
-    git checkout 46cd801fb444f1fb0a90418ab46e5977ec0a90b6 && \
+    git checkout 4783c4bf9a5ea78da7203c5ccdc5711d811a708d && \
     mkdir -p /opt/ewsposter/spool /opt/ewsposter/log && \
 #
 # Setup user and groups
