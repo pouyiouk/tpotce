@@ -49,7 +49,7 @@ RUN sed -i 's/dl-cdn/dl-2/g' /etc/apk/repositories && \
     rm -rf /root/* && \
     rm -rf /var/cache/apk/*
 #
-# Set workdir and start mailoney
+# Set workdir and start honeypy
 USER honeypy:honeypy
 WORKDIR /opt/honeypy
 CMD ["/opt/honeypy/env/bin/python2", "/opt/honeypy/Honey.py", "-d"]

@@ -1,7 +1,7 @@
 FROM alpine:3.14
 #
 # VARS
-ENV LS_VER=7.13.4
+ENV LS_VER=7.15.0
 # Include dist
 ADD dist/ /root/dist/
 #
@@ -31,6 +31,7 @@ RUN apk -U --no-cache add \
     # For some reason Alpine 3.14 does not report the -x flag correctly and thus elasticsearch does not find java
     sed -i 's/! -x/! -e/g' /usr/share/logstash/bin/logstash.lib.sh && \
     /usr/share/logstash/bin/logstash-plugin install logstash-filter-translate && \
+    /usr/share/logstash/bin/logstash-plugin install logstash-output-gelf && \
     /usr/share/logstash/bin/logstash-plugin install logstash-output-syslog && \
 #
 # Add and move files

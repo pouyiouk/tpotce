@@ -28,7 +28,7 @@ RUN sed -i 's/dl-cdn/dl-2/g' /etc/apk/repositories && \
                 pyopenssl \
                 qt4reactor \
                 service_identity \
-                rsa \
+                rsa==4.5 \		
                 pyasn1 && \
 #
 # Install rdpy from git
