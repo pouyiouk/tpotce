@@ -1,7 +1,7 @@
-FROM alpine:3.14
+FROM alpine:3.15
 #  
 # Include dist
-ADD dist/ /root/dist/
+COPY dist/ /root/dist/
 #
 # Install packages
 RUN apk -U --no-cache add \ 
@@ -10,9 +10,21 @@ RUN apk -U --no-cache add \
             		libcap \
             		libffi-dev \
             		openssl-dev \
-                        libzmq \
+                        py3-pyzmq \
             		postgresql-dev \
+			py3-attrs \
+			py3-mysqlclient \
+			py3-nose \
+			py3-openssl \
 			py3-pip \
+			py3-psycopg2 \
+			py3-pycryptodome \
+			py3-pyzmq \
+			py3-requests \
+			py3-rsa \
+			py3-typing-extensions \
+			py3-wheel \
+			py3-yaml \
             		python3 \
             		python3-dev && \
 #
@@ -21,7 +33,8 @@ RUN apk -U --no-cache add \
     cd /opt/ && \
     git clone https://github.com/johnnykv/heralding && \
     cd heralding && \
-    git checkout 3f38976a2ab4d884d755b6324f2c71923ddadbdb && \
+    git checkout c31f99c55c7318c09272d8d9998e560c3d4de9aa && \
+    cp /root/dist/requirements.txt . && \
     pip3 install --upgrade pip && \
     pip3 install --no-cache-dir -r requirements.txt && \
     pip3 install --no-cache-dir . && \

@@ -10,98 +10,128 @@ services:
 # Adbhoney service
   adbhoney:
     build: adbhoney/.
-    image: "ghcr.io/telekom-security/adbhoney:2006"
+    image: "dtagdevsec/adbhoney:2204"
 
 # Ciscoasa service
   ciscoasa:
     build: ciscoasa/.
-    image: "ghcr.io/telekom-security/ciscoasa:2006"
+    image: "dtagdevsec/ciscoasa:2204"
 
 # CitrixHoneypot service
   citrixhoneypot:
     build: citrixhoneypot/.
-    image: "ghcr.io/telekom-security/citrixhoneypot:2006"
+    image: "dtagdevsec/citrixhoneypot:2204"
 
 # Conpot IEC104 service
   conpot_IEC104:
     build: conpot/.
-    image: "ghcr.io/telekom-security/conpot:2006"
+    image: "dtagdevsec/conpot:2204"
 
 # Cowrie service
   cowrie:
     build: cowrie/.
-    image: "ghcr.io/telekom-security/cowrie:2006"
+    image: "dtagdevsec/cowrie:2204"
+
+# Ddospot service
+  ddospot:
+    build: ddospot/.
+    image: "dtagdevsec/ddospot:2204"
 
 # Dicompot service
   dicompot:
     build: dicompot/.
-    image: "ghcr.io/telekom-security/dicompot:2006"
+    image: "dtagdevsec/dicompot:2204"
 
 # Dionaea service
   dionaea:
     build: dionaea/.
-    image: "ghcr.io/telekom-security/dionaea:2006"
+    image: "dtagdevsec/dionaea:2204"
 
 # ElasticPot service
   elasticpot:
     build: elasticpot/.
-    image: "ghcr.io/telekom-security/elasticpot:2006"
+    image: "dtagdevsec/elasticpot:2204"
+
+# Endlessh service
+  endlessh:
+    build: endlessh/.
+    image: "dtagdevsec/endlessh:2204"
 
 # Glutton service
   glutton:
     build: glutton/.
-    image: "ghcr.io/telekom-security/glutton:2006"
+    image: "dtagdevsec/glutton:2204"
+
+# Hellpot service
+  hellpot:
+    build: hellpot/.
+    image: "dtagdevsec/hellpot:2204"
 
 # Heralding service
   heralding:
     build: heralding/.
-    image: "ghcr.io/telekom-security/heralding:2006"
+    image: "dtagdevsec/heralding:2204"
 
-# HoneyPy service
-  honeypy:
-    build: honeypy/.
-    image: "ghcr.io/telekom-security/honeypy:2006"
+# Honeypots service
+  honeypots:
+    build: honeypots/.
+    image: "dtagdevsec/honeypots:2204"
 
 # Honeytrap service
   honeytrap:
     build: honeytrap/.
-    image: "ghcr.io/telekom-security/honeytrap:2006"
+    image: "dtagdevsec/honeytrap:2204"
+
+# IPPHoney service
+  ipphoney:
+    build: ipphoney/.
+    image: "dtagdevsec/ipphoney:2204"
+
+# Log4Pot service
+  log4pot:
+    build: log4pot/.
+    image: "dtagdevsec/log4pot:2204"
 
 # Mailoney service
   mailoney:
     build: mailoney/.
-    image: "ghcr.io/telekom-security/mailoney:2006"
+    image: "dtagdevsec/mailoney:2204"
 
 # Medpot service
   medpot:
     build: medpot/.
-    image: "ghcr.io/telekom-security/medpot:2006"
+    image: "dtagdevsec/medpot:2204"
 
-# Rdpy service
-  rdpy:
-    build: rdpy/.
-    image: "ghcr.io/telekom-security/rdpy:2006"
+# Redishoneypot service
+  redishoneypot:
+    build: redishoneypot/.
+    image: "dtagdevsec/redishoneypot:2204"
+
+# Sentrypeer service
+  sentrypeer:
+    build: sentrypeer/.
+    image: "dtagdevsec/sentrypeer:2204"
 
 #### Snare / Tanner
 ## Tanner Redis Service
   tanner_redis:
     build: tanner/redis/.
-    image: "ghcr.io/telekom-security/redis:2006"
+    image: "dtagdevsec/redis:2204"
 
 ## PHP Sandbox service
   tanner_phpox:
     build: tanner/phpox/.
-    image: "ghcr.io/telekom-security/phpox:2006"
+    image: "dtagdevsec/phpox:2204"
 
 ## Tanner API Service
   tanner_api:
     build: tanner/tanner/.
-    image: "ghcr.io/telekom-security/tanner:2006"
+    image: "dtagdevsec/tanner:2204"
 
 ## Snare Service
   snare:
     build: tanner/snare/.
-    image: "ghcr.io/telekom-security/snare:2006"
+    image: "dtagdevsec/snare:2204"
 
 
 ##################
@@ -111,60 +141,55 @@ services:
 # Fatt service
   fatt:
     build: fatt/.
-    image: "ghcr.io/telekom-security/fatt:2006"
+    image: "dtagdevsec/fatt:2204"
 
 # P0f service
   p0f:
     build: p0f/.
-    image: "ghcr.io/telekom-security/p0f:2006"
+    image: "dtagdevsec/p0f:2204"
 
 # Suricata service
   suricata:
     build: suricata/.
-    image: "ghcr.io/telekom-security/suricata:2006"
+    image: "dtagdevsec/suricata:2204"
 
 
 ##################
 #### Tools
 ##################
 
-# Cyberchef service
-  cyberchef:
-    build: cyberchef/.
-    image: "ghcr.io/telekom-security/cyberchef:2006"
-
 #### ELK
 ## Elasticsearch service
   elasticsearch:
     build: elk/elasticsearch/.
-    image: "ghcr.io/telekom-security/elasticsearch:2006"
+    image: "dtagdevsec/elasticsearch:2204"
 
 ## Kibana service
   kibana:
     build: elk/kibana/.
-    image: "ghcr.io/telekom-security/kibana:2006"
+    image: "dtagdevsec/kibana:2204"
 
 ## Logstash service
   logstash:
     build: elk/logstash/.
-    image: "ghcr.io/telekom-security/logstash:2006"
-
-## Elasticsearch-head service
-  head:
-    build: elk/head/.
-    image: "ghcr.io/telekom-security/head:2006"
+    image: "dtagdevsec/logstash:2204"
 
 # Ewsposter service
   ewsposter:
-    build: ews/.
-    image: "ghcr.io/telekom-security/ewsposter:2006"
+    build: ewsposter/.
+    image: "dtagdevsec/ewsposter:2204"
 
 # Nginx service
   nginx:
-    build: heimdall/.
-    image: "ghcr.io/telekom-security/nginx:2006"
+    build: nginx/.
+    image: "dtagdevsec/nginx:2204"
 
 # Spiderfoot service
   spiderfoot:
     build: spiderfoot/.
-    image: "ghcr.io/telekom-security/spiderfoot:2006"
+    image: "dtagdevsec/spiderfoot:2204"
+
+# Map Web Service
+  map_web:
+    build: elk/map/.
+    image: "dtagdevsec/map:2204"

@@ -117,7 +117,7 @@ fuCOWRIE () {
 # Let's create a function to clean up and prepare ddospot data
 fuDDOSPOT () {
   if [ "$myPERSISTENCE" != "on" ]; then rm -rf /data/ddospot/log; fi
-  mkdir -p /data/ddospot/log
+  mkdir -p /data/ddospot/bl /data/ddospot/db /data/ddospot/log
   chmod 770 /data/ddospot -R
   chown tpot:tpot /data/ddospot -R
 }
@@ -197,12 +197,12 @@ fuHERALDING () {
   chown tpot:tpot /data/heralding -R
 }
 
-# Let's create a function to clean up and prepare honeypy data
-fuHONEYPY () {
-  if [ "$myPERSISTENCE" != "on" ]; then rm -rf /data/honeypy/*; fi
-  mkdir -p /data/honeypy/log
-  chmod 770 /data/honeypy -R
-  chown tpot:tpot /data/honeypy -R
+# Let's create a function to clean up and prepare honeypots data
+fuHONEYPOTS () {
+  if [ "$myPERSISTENCE" != "on" ]; then rm -rf /data/honeypots/*; fi
+  mkdir -p /data/honeypots/log
+  chmod 770 /data/honeypots -R
+  chown tpot:tpot /data/honeypots -R
 }
 
 # Let's create a function to clean up and prepare honeysap data
@@ -227,6 +227,14 @@ fuIPPHONEY () {
   mkdir -p /data/ipphoney/log
   chmod 770 /data/ipphoney -R
   chown tpot:tpot /data/ipphoney -R
+}
+
+# Let's create a function to clean up and prepare log4pot data
+fuLOG4POT () {
+  if [ "$myPERSISTENCE" != "on" ]; then rm -rf /data/log4pot/*; fi
+  mkdir -p /data/log4pot/log
+  chmod 770 /data/log4pot -R
+  chown tpot:tpot /data/log4pot -R
 }
 
 # Let's create a function to clean up and prepare mailoney data
@@ -267,6 +275,14 @@ fuREDISHONEYPOT () {
   mkdir -p /data/redishoneypot/log
   chmod 770 /data/redishoneypot -R
   chown tpot:tpot /data/redishoneypot -R
+}
+
+# Let's create a function to clean up and prepare sentrypeer data
+fuSENTRYPEER () {
+  if [ "$myPERSISTENCE" != "on" ]; then rm -rf /data/sentrypeer/log; fi
+  mkdir -p /data/sentrypeer/log
+  chmod 770 /data/sentrypeer -R
+  chown tpot:tpot /data/sentrypeer -R
 }
 
 # Let's create a function to prepare spiderfoot db
@@ -339,14 +355,16 @@ if [ "$myPERSISTENCE" = "on" ];
     fuHERALDING
     fuHELLPOT
     fuHONEYSAP
-    fuHONEYPY
+    fuHONEYPOTS
     fuHONEYTRAP
     fuIPPHONEY
+    fuLOG4POT
     fuMAILONEY
     fuMEDPOT
     fuNGINX
     fuREDISHONEYPOT
     fuRDPY
+    fuSENTRYPEER
     fuSPIDERFOOT
     fuSURICATA
     fuP0F

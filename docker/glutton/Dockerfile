@@ -1,7 +1,7 @@
-FROM alpine:3.13
+FROM alpine:3.15 as builder
 #
 # Include dist
-ADD dist/ /root/dist/
+COPY dist/ /root/dist/
 # 
 # Setup apk
 RUN apk -U --no-cache add \
@@ -11,7 +11,6 @@ RUN apk -U --no-cache add \
                    g++ \
                    iptables-dev \
                    libnetfilter_queue-dev \
-                   libcap \
                    libpcap-dev && \
 #
 # Setup go, glutton
@@ -25,11 +24,19 @@ RUN apk -U --no-cache add \
     mv /root/dist/system.go /opt/go/glutton/ && \
     go mod download && \
     make build && \
-    cd / && \
-    mkdir -p /opt/glutton && \
-    mv /opt/go/glutton/bin /opt/glutton/ && \
-    mv /opt/go/glutton/config /opt/glutton/ && \
-    mv /opt/go/glutton/rules /opt/glutton/ && \
+    mv /root/dist/rules.yaml /opt/go/glutton/rules/
+#
+FROM alpine:3.17
+#
+COPY --from=builder /opt/go/glutton/bin /opt/glutton/bin
+COPY --from=builder /opt/go/glutton/config /opt/glutton/config
+COPY --from=builder /opt/go/glutton/rules /opt/glutton/rules
+#
+RUN apk -U --no-cache add \
+                   iptables-dev \
+                   libnetfilter_queue-dev \
+                   libcap \
+                   libpcap-dev && \
     ln -s /sbin/xtables-legacy-multi /sbin/xtables-multi && \
     setcap cap_net_admin,cap_net_raw=+ep /opt/glutton/bin/server && \
     setcap cap_net_admin,cap_net_raw=+ep /sbin/xtables-legacy-multi && \
@@ -38,16 +45,10 @@ RUN apk -U --no-cache add \
     addgroup -g 2000 glutton && \
     adduser -S -s /bin/ash -u 2000 -D -g 2000 glutton && \
     mkdir -p /var/log/glutton && \
-    mv /root/dist/rules.yaml /opt/glutton/rules/ && \
 #
 # Clean up
-    apk del --purge build-base \
-                    git \
-                    go \
-                    g++ && \
     rm -rf /var/cache/apk/* \
-           /opt/go \
-           /root/dist
+           /root/*
 #
 # Start glutton 
 WORKDIR /opt/glutton
