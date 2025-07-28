@@ -4,14 +4,15 @@ FROM alpine:edge
 COPY dist/ /root/dist/
 #
 # Install packages
-RUN apk -U --no-cache add \
-                 ca-certificates \
-                 curl \
-                 file \
-		 hiredis \
-                 libcap \
-                 wget \
-                 suricata && \
+RUN apk --no-cache -U upgrade && \
+    apk --no-cache -U add \
+		ca-certificates \
+		curl \
+		file \
+		hiredis \
+		libcap \
+		wget \
+		suricata && \
 #
 # Setup user, groups and configs
     addgroup -g 2000 suri && \
@@ -30,10 +31,10 @@ RUN apk -U --no-cache add \
     suricata-update --no-test --no-reload && \
 #
 # Clean up
-    rm -rf /root/* && \
-    rm -rf /tmp/* && \
-    rm -rf /var/cache/apk/*
+    rm -rf /root/* \
+           /tmp/* \
+           /var/cache/apk/*
 #
 # Start suricata
 STOPSIGNAL SIGINT
-CMD SURICATA_CAPTURE_FILTER=$(update.sh $OINKCODE) && exec suricata -v -F $SURICATA_CAPTURE_FILTER -i $(/sbin/ip address show | /usr/bin/awk '/inet.*brd/{ print $NF; exit }')
+CMD SURICATA_CAPTURE_FILTER=$(update.sh $OINKCODE) && exec suricata -v -F $SURICATA_CAPTURE_FILTER -i $(ip route | grep "^default" | awk '{ print $5 }')

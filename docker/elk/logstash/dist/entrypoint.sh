@@ -10,7 +10,10 @@ trap fuCLEANUP EXIT
 if [ -f "/data/tpot/etc/compose/elk_environment" ];
   then
     echo "Found .env, now exporting ..."
-    set -o allexport && source "/data/tpot/etc/compose/elk_environment" && set +o allexport
+    set -o allexport
+    source "/data/tpot/etc/compose/elk_environment"
+    LS_SSL_VERIFICATION="${LS_SSL_VERIFICATION:-full}"
+    set +o allexport
 fi
 
 # Check internet availability 
@@ -42,25 +45,28 @@ if [ "$myCHECK" == "0" ];
     echo "Cannot reach Listbot, starting Logstash without latest translation maps."
 fi
 
-# Distributed T-Pot installation needs a different pipeline config and autossh tunnel. 
-if [ "$MY_TPOT_TYPE" == "SENSOR" ];
+# Distributed T-Pot installation needs a different pipeline config 
+if [ "$TPOT_TYPE" == "SENSOR" ];
   then
     echo
-    echo "Distributed T-Pot setup, sending T-Pot logs to $MY_HIVE_IP."
+    echo "Distributed T-Pot setup, sending T-Pot logs to $TPOT_HIVE_IP."
     echo
-    echo "T-Pot type: $MY_TPOT_TYPE"
-    echo "Keyfile used: $MY_SENSOR_PRIVATEKEYFILE"
-    echo "Hive username: $MY_HIVE_USERNAME"
-    echo "Hive IP: $MY_HIVE_IP"
+    echo "T-Pot type: $TPOT_TYPE"
+    echo "Hive IP: $TPOT_HIVE_IP"
+    echo "SSL verification: $LS_SSL_VERIFICATION"
     echo
-    # Ensure correct file permissions for private keyfile or SSH will ask for password
-    chmod 600 $MY_SENSOR_PRIVATEKEYFILE
+   # Ensure correct file permissions for private keyfile or SSH will ask for password
     cp /usr/share/logstash/config/pipelines_sensor.yml /usr/share/logstash/config/pipelines.yml
-    autossh -f -M 0 -4 -l $MY_HIVE_USERNAME -i $MY_SENSOR_PRIVATEKEYFILE -p 64295 -N -L64305:127.0.0.1:64305 $MY_HIVE_IP -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -o "StrictHostKeyChecking=no" -o "UserKnownHostsFile=/dev/null"
 fi
 
-if [ "$MY_TPOT_TYPE" != "SENSOR" ];
+if [ "$TPOT_TYPE" != "SENSOR" ];
   then
+    echo
+    echo "This is a T-Pot STANDARD / HIVE installation."
+    echo
+    echo "T-Pot type: $TPOT_TYPE"
+    echo
+
     # Index Management is happening through ILM, but we need to put T-Pot ILM setting on ES.
     myTPOTILM=$(curl -s -XGET "http://elasticsearch:9200/_ilm/policy/tpot" | grep "Lifecycle policy not found: tpot" -c)
     if [ "$myTPOTILM" == "1" ];
@@ -95,4 +101,8 @@ if [ "$MY_TPOT_TYPE" != "SENSOR" ];
 fi
 echo
 
+ARCH=$(arch)
+if [ "$ARCH" = "aarch64" ]; then
+  export _JAVA_OPTIONS="-XX:UseSVE=0";
+fi
 exec /usr/share/logstash/bin/logstash --config.reload.automatic

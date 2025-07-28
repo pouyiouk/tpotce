@@ -1,46 +1,36 @@
-FROM alpine:3.17
+FROM golang:1.23-alpine AS builder
 #
 # Include dist
 COPY dist/ /root/dist/
 #
-# Setup apk
-RUN apk -U --no-cache add \
-                   build-base \
-                   git \
-                   go \
-                   g++ && \
+# Install packages
+RUN apk --no-cache -U upgrade && \
+    apk --no-cache -U add \
+		build-base \
+		git \
+		g++ && \
 #
 # Setup go, hellpot
     cd /root && \
-    export GOPATH=/opt/go/ && \
-    mkdir -p /opt/hellpot && \
-    mkdir -p /opt/go && \ 
     git clone https://github.com/yunginnanet/HellPot && \
     cd HellPot && \
-    git checkout 49433bf499b6af314786cbbc3cb8566cdb18c40c && \
+    git checkout c48b70110148918255f93df4fa49c675ba5a5754 && \
     sed -i 's#logFileName := "HellPot"#logFileName := "hellpot"#g' internal/config/logger.go && \
-    go build cmd/HellPot/HellPot.go && \
-    mv /root/HellPot/HellPot /opt/hellpot/ && \
+    go mod download && \
+    go vet -v ./... && \
+    go test -v ./... && \
+    export CGO_ENABLED=0 && \
+    export VERSION=`git tag --sort=-version:refname | head -n 1` && \
+    go build -trimpath \
+		-ldflags "-s -w -X main.version=$VERSION" \
+		cmd/HellPot/HellPot.go
 #
-# Setup user, groups and configs
-    addgroup -g 2000 hellpot && \
-    adduser -S -s /bin/ash -u 2000 -D -g 2000 hellpot && \
-    mkdir -p /var/log/hellpot && \
-  # Hellpot wants to create .config folder always in user's home
-    mkdir -p /home/hellpot/.config/HellPot/logs && \
-    mv /root/dist/config.toml /home/hellpot/.config/HellPot/ && \
-    chown hellpot:hellpot -R /home/hellpot && \
+FROM scratch
 #
-# Clean up
-    apk del --purge build-base \
-                    git \
-                    go \
-                    g++ && \
-    rm -rf /var/cache/apk/* \
-           /opt/go \
-           /root/*
+COPY --from=builder /root/HellPot/HellPot /opt/hellpot/
+COPY --from=builder /root/dist/config.toml /opt/hellpot/config/
 #
 # Start hellpot
 WORKDIR /opt/hellpot
-USER hellpot:hellpot
-CMD ["./HellPot"]
+USER 2000:2000
+CMD ["./HellPot", "-c","config/config.toml"]

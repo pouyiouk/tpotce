@@ -1,45 +1,46 @@
 # Release Notes / Changelog
-T-Pot 22.04.0 is probably the most feature rich release ever provided with long awaited (wanted!) features readily available after installation. 
+T-Pot 24.04.1 brings significant updates and exciting new honeypot additions, especially the LLM-based honeypots **Beelzebub** and **Galah**!
 
 ## New Features
-* **Distributed** Installation with **HIVE** and **HIVE_SENSOR**
-* **ARM64** support for all provided Docker images
-* **GeoIP Attack Map** visualizing Live Attacks on a dedicated webpage
-* **Kibana Live Attack Map** visualizing Live Attacks from different **HIVE_SENSORS**
-* **Blackhole** is a script trying to avoid mass scanner detection 
-* **Elasticvue** a web front end for browsing and interacting with an Elastic Search cluster
-* **Ddospot** a honeypot for tracking and monitoring UDP-based Distributed Denial of Service (DDoS) attacks
-* **Endlessh** is a SSH tarpit that very slowly sends an endless, random SSH banner
-* **HellPot** is an endless honeypot based on Heffalump that sends unruly HTTP bots to hell
-* **qHoneypots** 25 honeypots in a single container for monitoring network traffic, bots activities, and username \ password credentials
-* **Redishoneypot** is a honeypot mimicking some of the Redis' functions
-* **SentryPeer** a dedicated SIP honeypot
-* **Index Lifecycle Management** for Elasticseach indices is now being used
-
-## Upgrades
-* **Debian 11.x** is now being used for the T-Pot ISO images and required for post installs
-* **Elastic Stack 8.x** is now provided as Docker images
+* **Beelzebub** (SSH) and **Galah** (HTTP) are the first LLM-based honeypots included in T-Pot (requires Ollama installation or a ChatGPT subscription).
+* **Go-Pot** a HTTP tarpit designed to maximize bot misery by slowly feeding them an infinite stream of fake secrets.
+* **Honeyaml** a configurable API server honeypot even supporting JWT-based HTTP bearer/token authentication.
+* **H0neytr4p** a HTTP/S honeypot capable of emulating vulnerabilities using configurable traps.
+* **Miniprint** a medium-interaction printer honeypot.
 
 ## Updates
-* **Honeypots** and **tools** were updated to their latest masters and releases
-* Updates will be provided continuously through Docker Images updates 
+* **Honeypots** were updated to their latest pushed code and / or releases.
+* **Editions** have been re-introduced. You can now additionally choose to install T-Pot as **Mini**, **LLM** and **Tarpit** edition.
+* **Attack Map** has been updated to 2.2.6 including support for all new honeypots.
+* **Elastic Stack** has been upgrade to 8.16.1.
+* **Cyberchef** has been updated to the latest release.
+* **Elasticvue** has been updated to 1.1.0.
+* **Suricata** has been updated to 7.0.7, now supporting JA4 hashes.
+* Most honeypots now use **PyInstaller** (for Python) and **Scratch** (for Go) to minimize Docker image sizes.
+* All new honeypots have been integrated with **Kibana**, featuring dedicated dashboards and visualizations.
+* **Github Container Registry** is now the default container registry for the T-Pot configuration file `.env`.
+* Compatibility tested with **Alma 9.5**, **Fedora 41**, **Rocky 9.5**, and **Ubuntu 24.04.1**, with updated supported ISO links.
+* Docker images now use **Alpine 3.20** or **Scratch** wherever possible.
+* Updates for `24.04.1` images will be provided continuously through Docker image updates.
+* **Ddospot** has been moved from the Hive / Sensor installation to the Tarpit installation.
 
-## Breaking Changes
-* For security reasons all Py2.x honeypots with the need of PyPi packages have been removed: **HoneyPy**, **HoneySAP** and **RDPY**
-* If you are upgrading from a previous version of T-Pot (20.06.x) you need to import the new Kibana objects or some of the functionality will be broken or will be unavailabe
-* **Cyberchef** is now part of the Nginx Docker image, no longer as individual image
-* **ElasticSearch Head** is superseded by **Elasticvue** and part the Nginx Docker image
-* **Heimdall** is no longer supported and superseded with a new Bento based landing page
-* **Elasticsearch Curator** is no longer supprted and superseded with **Index Lifecycle Policies** available through Kibana.
+## Breaking Changes  
+### NGINX  
+- The container no longer runs in host mode, requiring changes to the `docker-compose.yml` and related services.  
+- To avoid confusion and downtime, the `24.04.1` tag for Docker images has been introduced.  
+- **Important**: Actively update T-Pot as described in the [README](https://github.com/telekom-security/tpotce/blob/master/README.md).  
+- **Deprecation Notice**: The `24.04` tagged images will no longer be maintained and will be removed by **2025-01-31**.  
 
-# Thanks & Credits
-* @ghenry, for some fun late night debugging and of course SentryPeer!
-* @giga-a, for adding much appreciated features (i.e. JSON logging, 
-X-Forwarded-For, etc.) and of course qHoneypots! 
-* @sp3t3rs, @trixam, for their backend and ews support!
-* @tadashi-oya, for spotting some errors and propose fixes!
-* @tmariuss, @shaderecker for their cloud contributions!
-* @vorband, for much appreciated and helpful insights regarding the GeoIP Attack Map!
-* @yunginnanet, on not giving up on squashing a bug and of course Hellpot!
+### Suricata  
+- Capture filters have been updated to exclude broadcast, multicast, NetBIOS, IGMP, and MDNS traffic.  
 
-... and many others from the T-Pot community by opening valued issues and discussions, suggesting ideas and thus helping to improve T-Pot!
+## Thanks & Credits
+A heartfelt thank you to the contributors who made this release possible:
+* @elivlo, @mancasa, koalafiedTroll, @trixam, for their backend and ews support!
+* @mariocandela for his work and updates on Beelzebub based on our discussions!
+* @ryanolee for approaching us and adding valuable features to go-pot based on our discussions! 
+* @neon-ninja for the work on #1661!
+* @sarkoziadam for the work on #1643!
+* @glaslos for the work on #1538!
+
+… and to the entire T-Pot community for opening issues, sharing ideas, and helping improve T-Pot!

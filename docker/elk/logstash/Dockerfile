@@ -1,25 +1,24 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LS_VER=8.18.3
 #
-# VARS
-ENV LS_VER=8.6.2
 # Include dist
 COPY dist/ /root/dist/
 #
-# Setup env and apt
+# Install packages
 RUN apt-get update -y && \
+    apt-get upgrade -y && \
     apt-get install -y \
+    		 adduser \
              aria2 \
-	     autossh \
              bash \
              bzip2 \
-	     curl \
-#             openjdk-11-jre \
-             openssh-client && \
+             curl && \
 #
 # Determine arch, get and install packages
     ARCH=$(arch) && \
-      if [ "$ARCH" = "x86_64" ]; then LS_ARCH="amd64"; fi && \
-      if [ "$ARCH" = "aarch64" ]; then LS_ARCH="arm64"; fi && \
+    if [ "$ARCH" = "x86_64" ]; then LS_ARCH="amd64"; export _JAVA_OPTIONS=""; fi && \
+    if [ "$ARCH" = "aarch64" ]; then LS_ARCH="arm64"; export _JAVA_OPTIONS="-XX:UseSVE=0"; fi && \
     echo "$ARCH" && \
     mkdir -p /etc/listbot && \
     cd /etc/listbot && \
@@ -29,7 +28,6 @@ RUN apt-get update -y && \
     cd /root/dist/ && \
     aria2c -s 16 -x 16 https://artifacts.elastic.co/downloads/logstash/logstash-$LS_VER-$LS_ARCH.deb && \
     dpkg -i logstash-$LS_VER-$LS_ARCH.deb && \
-#    /usr/share/logstash/bin/logstash-plugin install logstash-output-gelf logstash-output-syslog && \
 #
 # Add and move files
     cd /root/dist/ && \
@@ -44,6 +42,7 @@ RUN apt-get update -y && \
     cp tpot-template.json /etc/logstash/ && \
     cd /usr/share/logstash && \
     bin/logstash-plugin update logstash-filter-translate && \
+	bin/logstash-plugin install logstash-output-syslog && \
     rm /etc/logstash/pipelines.yml && \
     rm /etc/logstash/logstash.yml && \
 #
@@ -59,11 +58,15 @@ RUN apt-get update -y && \
 #
 # Clean up
     apt-get autoremove -y --purge && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache /root/*
+    apt-get clean && \
+        rm -rf /var/lib/apt/lists/* \
+            /tmp/* /var/tmp/* \
+            /root/.cache \
+            /root/*
 #
 # Healthcheck
 HEALTHCHECK --retries=10 CMD curl -s -XGET 'http://127.0.0.1:9600'
 #
 # Start logstash
 USER logstash:logstash
-CMD entrypoint.sh
+CMD ["entrypoint.sh"]
